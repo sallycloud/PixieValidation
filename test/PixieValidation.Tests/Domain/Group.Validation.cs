@@ -2,12 +2,12 @@ namespace PixieValidation.Tests.Domain;
 
 public partial record Group : IValidatable
 {
-    public static Validator<string> NameValidator = value =>
+    public static PropChecker<string> NameChecker = value =>
         string.IsNullOrWhiteSpace(value) ? "Name is required." : null;
 
-    public void Validate(ErrorCollector errors)
+    public void ValidateAndCollect(ErrorCollector errors)
     {
-        errors.Check(Name, NameValidator);
+        errors.Check(Name, NameChecker);
         errors.Nested(Persons);
     }
 }

@@ -1,2 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>PixieValidation</PackageId>
+        <Authors>sallycloud</Authors>
+        <Description>Lightweight validation framework: rule functions, path-aware error collection, no value-object/converter overhead.</Description>
+        <RepositoryUrl>https://github.com/sallycloud/PixieValidation</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
 </Project>

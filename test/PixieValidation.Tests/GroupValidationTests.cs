@@ -18,7 +18,7 @@ public class GroupValidationTests
             ]
         };
 
-        var exception = Assert.Throws<ValidationException>(group.ValidateOrThrow);
+        var exception = Assert.Throws<ValidationException>(() => group.ValidateOrThrow());
 
         Assert.Equal(3, exception.Errors.Count);
         Assert.Contains(exception.Errors, e => e.Path == "Name" && e.Message == "Name is required.");
@@ -35,7 +35,21 @@ public class GroupValidationTests
             Persons = [new Person { Name = "Alice", Age = 30 }]
         };
 
-        var exception = Record.Exception(group.ValidateOrThrow);
+        var exception = Record.Exception(() => group.ValidateOrThrow());
+
+        Assert.Null(exception);
+    }
+    
+    [Fact]
+    public void ValidateOrThrow_WithNullAge_DoesNotThrow()
+    {
+        var group = new Group
+        {
+            Name = "Team A",
+            Persons = [new Person { Name = "Alice", Age = null }]
+        };
+
+        var exception = Record.Exception(() => group.ValidateOrThrow());
 
         Assert.Null(exception);
     }
