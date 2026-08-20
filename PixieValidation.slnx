@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PixieValidation/PixieValidation.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/PixieValidation.Tests/PixieValidation.Tests.csproj" />
+  </Folder>
+</Solution>
