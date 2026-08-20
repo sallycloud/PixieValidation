@@ -4,8 +4,8 @@ namespace PixieValidation.PropCheckers;
 
 public static class StringCheckers
 {
-    public static PropChecker<string> NotEmpty() =>
-        value => string.IsNullOrEmpty(value) ? "Value is required." : null;
+    public static PropChecker<string> NotEmpty(string errorMessage = "Value is required.") =>
+        value => string.IsNullOrEmpty(value) ? errorMessage : null;
 
     public static PropChecker<string> MinLength(int min) =>
         value => value.Length < min ? $"Must have at least {min} characters." : null;

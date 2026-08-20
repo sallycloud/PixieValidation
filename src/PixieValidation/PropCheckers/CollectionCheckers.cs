@@ -15,7 +15,7 @@ public static class CollectionCheckers
     /// Applies <paramref name="itemChecker"/> to each element. Returns the first error found,
     /// including the offending value.
     /// </summary>
-    public static PropChecker<IReadOnlyList<T>> ForEach<T>(PropChecker<T> itemChecker) =>
+    public static PropChecker<IEnumerable<T>> ForEach<T>(PropChecker<T> itemChecker) =>
         values =>
         {
             foreach (var value in values)
