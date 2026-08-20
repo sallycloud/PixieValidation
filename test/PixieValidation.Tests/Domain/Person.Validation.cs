@@ -1,16 +1,18 @@
+using PixieValidation.PropCheckers;
+
 namespace PixieValidation.Tests.Domain;
 
 public partial record Person : IValidatable
 {
-    public static PropChecker<string> NameChecker = value =>
-        string.IsNullOrWhiteSpace(value) ? "Name is required." : null;
+    public static PropChecker<string> NameChecker =
+        StringCheckers.NotEmpty();
 
-    private static PropChecker<int> AgeRangeChecker = value =>
-        value is < 0 or > 150 ? "Age must be between 0 and 150." : null;
+    private static PropChecker<int> AgeRangeChecker =
+        IntCheckers.Range(0, 150);
 
     public static PropChecker<int?> AgeChecker =
         AgeRangeChecker.OptionalVal();
-    
+
     public void ValidateAndCollect(ErrorCollector errors)
     {
         errors.Check(Name, NameChecker);

@@ -1,9 +1,12 @@
+using PixieValidation.PropCheckers;
+
 namespace PixieValidation.Tests.Domain;
+
 
 public partial record Group : IValidatable
 {
-    public static PropChecker<string> NameChecker = value =>
-        string.IsNullOrWhiteSpace(value) ? "Name is required." : null;
+    public static PropChecker<string> NameChecker =
+        StringCheckers.NotEmpty();
 
     public void ValidateAndCollect(ErrorCollector errors)
     {

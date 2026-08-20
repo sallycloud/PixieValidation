@@ -21,9 +21,9 @@ public class GroupValidationTests
         var exception = Assert.Throws<ValidationException>(() => group.ValidateOrThrow());
 
         Assert.Equal(3, exception.Errors.Count);
-        Assert.Contains(exception.Errors, e => e.Path == "Name" && e.Message == "Name is required.");
-        Assert.Contains(exception.Errors, e => e.Path == "Persons[1].Name" && e.Message == "Name is required.");
-        Assert.Contains(exception.Errors, e => e.Path == "Persons[2].Age" && e.Message == "Age must be between 0 and 150.");
+        Assert.Contains(exception.Errors, e => e.Path == "Name" && e.Message == "Value is required.");
+        Assert.Contains(exception.Errors, e => e.Path == "Persons[1].Name" && e.Message == "Value is required.");
+        Assert.Contains(exception.Errors, e => e.Path == "Persons[2].Age" && e.Message == "Must be between 0 and 150.");
     }
 
     [Fact]
