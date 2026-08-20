@@ -31,19 +31,21 @@ public static class PropValidatorExtensions
         toValidate => condition(toValidate) ? checker(toValidate) : null;
     
     /// <summary>
-    /// Validates <paramref name="validatable"/> and throws a <see cref="ValidationException"/>
-    /// if any errors are found. Unlike <see cref="ValidateOrThrow{T}"/>, wraps the result in a
+    /// Checks <paramref name="toValidate"/> and throws a <see cref="ValidationException"/>
+    /// if it is invalid. Unlike <see cref="ValidateOrThrow{T}"/>, wraps the result in a
     /// <see cref="Valid{T}"/> so that later code can require an already-validated instance
     /// through its signature alone.
     /// </summary>
-    /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="validatable"/>.</returns>
-    public static Valid<T> ToValidOrThrow<T>(this T validatable, ErrorCollector? errors = null) where T : IValidatable
+    /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="toValidate"/>.</returns>
+    public static Valid<T> ToValidOrThrow<T>(
+        this PropChecker<T> checker,
+        T toValidate,
+        [CallerArgumentExpression(nameof(toValidate))] string? propertyName = null)
     {
-        errors ??= new ErrorCollector();
-        validatable.ValidateAndCollect(errors);
-        if (errors.Any())
-            throw new ValidationException(errors.ToList());
-        return Valid<T>.Create(validatable);
+        var error = checker(toValidate);
+        if (error is not null)
+            throw new ValidationException([new ValidationError(propertyName!, error)]);
+        return Valid<T>.Create(toValidate);
     }
     
     /// <summary>

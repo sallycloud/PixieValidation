@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
-using PixieValidation.PropCheckers;
 
 namespace PixieValidation;
 
@@ -57,6 +56,24 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
         {
             _path.Push($"{propertyName}[{i}]");
             children[i].ValidateAndCollect(this);
+            _path.Pop();
+        }
+    }
+    
+    /// <summary>
+    /// Validates each item in <paramref name="children"/> using <paramref name="validator"/>,
+    /// prefixing errors' paths with <paramref name="propertyName"/> and the item's index
+    /// (e.g. <c>Persons[1].Name</c>).
+    /// </summary>
+    public void Nested<T>(
+        IValidator<T> validator,
+        IReadOnlyList<T> children,
+        [CallerArgumentExpression(nameof(children))] string? propertyName = null)
+    {
+        for (var i = 0; i < children.Count; i++)
+        {
+            _path.Push($"{propertyName}[{i}]");
+            validator.ValidateAndCollect(children[i], this);
             _path.Pop();
         }
     }

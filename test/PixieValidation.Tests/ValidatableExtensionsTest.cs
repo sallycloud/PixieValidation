@@ -2,7 +2,7 @@ using PixieValidation.Tests.Domain;
 
 namespace PixieValidation.Tests;
 
-public class GroupValidationTests
+public class ValidatableExtensionsTest
 {
     [Fact]
     public void ValidateOrThrow_WithMultipleErrors_ThrowsWithAllPaths()
@@ -52,5 +52,19 @@ public class GroupValidationTests
         var exception = Record.Exception(() => group.ValidateOrThrow());
 
         Assert.Null(exception);
+    }
+    
+    [Fact]
+    public void ToValidOrThrow_WithValidGroup_ReturnsValidWrappingGroup()
+    {
+        var group = new Group
+        {
+            Name = "Team A",
+            Persons = [new Person { Name = "Alice", Age = 30 }]
+        };
+
+        Valid<Group> result = group.ToValidOrThrow();
+
+        Assert.Same(group, result.Value);
     }
 }

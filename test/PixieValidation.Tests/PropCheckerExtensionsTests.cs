@@ -38,7 +38,7 @@ public class PropCheckerExtensionsTests
     {
         var name = "";
 
-        var exception = Assert.Throws<ValidationException>(() => { NotEmptyChecker.ToValidOrThrow(name); });
+        var exception = Assert.Throws<ValidationException>(() => NotEmptyChecker.ToValidOrThrow(name));
 
         var error = Assert.Single(exception.Errors);
         Assert.Equal("name", error.Path);
