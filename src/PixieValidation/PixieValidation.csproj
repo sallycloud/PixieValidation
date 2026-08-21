@@ -6,4 +6,8 @@
         <RepositoryUrl>https://github.com/sallycloud/PixieValidation</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="PixieValidation.Tests" />
+    </ItemGroup>
 </Project>

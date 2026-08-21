@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace PixieValidation;
 
 public static class ValidatorExtensions
@@ -25,11 +27,11 @@ public static class ValidatorExtensions
             throw new ValidationException(errors.ToList());
         return toValidate;
     }
-    
+
     /// <summary>
     /// Validates <paramref name="toValidate"/> and throws a <see cref="ValidationException"/>
-    /// if any errors are found. Unlike <see cref="ValidateOrThrow{T}"/>, wraps the result in a
-    /// <see cref="Valid{T}"/> so that later code can require an already-validated instance
+    /// if any errors are found. Unlike <see cref="ValidateOrThrow{T}(IValidator{T}, T, ErrorCollector)"/>,
+    /// wraps the result in a <see cref="Valid{T}"/> so that later code can require an already-validated instance
     /// through its signature alone.
     /// </summary>
     /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="toValidate"/>.</returns>
@@ -40,5 +42,88 @@ public static class ValidatorExtensions
         if (errors.Any())
             throw new ValidationException(errors.ToList());
         return Valid<T>.Create(toValidate);
+    }
+
+    /// <summary>
+    /// Validates each element of <paramref name="toValidate"/> using <paramref name="validator"/> and
+    /// throws a <see cref="ValidationException"/> if any element is invalid. Unlike checking a single
+    /// value, all invalid elements are collected; the exception contains one <see cref="ValidationError"/>
+    /// per error found, with the element's index appended to its path (e.g. <c>people[1].Name</c>).
+    /// </summary>
+    /// <returns><paramref name="toValidate"/>, if every element is valid.</returns>
+    public static IReadOnlyList<T> ValidateOrThrow<T>(
+        this IValidator<T> validator,
+        IReadOnlyList<T> toValidate,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
+    {
+        var errors = new ErrorCollector();
+        errors.Nested(validator, toValidate, basePath!);
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return toValidate;
+    }
+
+    /// <summary>
+    /// Validates each element of <paramref name="toValidate"/> using <paramref name="validator"/> and
+    /// throws a <see cref="ValidationException"/> if any element is invalid. Unlike
+    /// <see cref="ValidateOrThrow{T}(IValidator{T}, IReadOnlyList{T}, string)"/>, wraps the result in a
+    /// <see cref="Valid{T}"/> so that later code can require an already-validated collection through
+    /// its signature alone.
+    /// </summary>
+    /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="toValidate"/>.</returns>
+    public static Valid<IReadOnlyList<T>> ToValidOrThrow<T>(
+        this IValidator<T> validator,
+        IReadOnlyList<T> toValidate,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
+    {
+        var errors = new ErrorCollector();
+        errors.Nested(validator, toValidate, basePath!);
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return Valid<IReadOnlyList<T>>.Create(toValidate);
+    }
+
+    /// <summary>
+    /// Validates each element of <paramref name="toValidate"/> using <paramref name="validator"/> and
+    /// throws a <see cref="ValidationException"/> if any element is invalid. Unlike checking a single
+    /// value, all invalid elements are collected; the exception contains one <see cref="ValidationError"/>
+    /// per error found, with the element's iteration index appended to its path (e.g. <c>people[1].Name</c>).
+    /// Since sets have no guaranteed order, this index may not be stable across calls.
+    /// </summary>
+    /// <returns><paramref name="toValidate"/>, if every element is valid.</returns>
+    public static IReadOnlySet<T> ValidateOrThrow<T>(
+        this IValidator<T> validator,
+        IReadOnlySet<T> toValidate,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
+    {
+        var errors = new ErrorCollector();
+        errors.Nested(validator, toValidate, basePath!);
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return toValidate;
+    }
+
+    /// <summary>
+    /// Validates each element of <paramref name="toValidate"/> using <paramref name="validator"/> and
+    /// throws a <see cref="ValidationException"/> if any element is invalid. Unlike
+    /// <see cref="ValidateOrThrow{T}(IValidator{T}, IReadOnlySet{T}, string)"/>, wraps the result in a
+    /// <see cref="Valid{T}"/> so that later code can require an already-validated collection through
+    /// its signature alone.
+    /// </summary>
+    /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="toValidate"/>.</returns>
+    public static Valid<IReadOnlySet<T>> ToValidOrThrow<T>(
+        this IValidator<T> validator,
+        IReadOnlySet<T> toValidate,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
+    {
+        var errors = new ErrorCollector();
+        errors.Nested(validator, toValidate, basePath!);
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return Valid<IReadOnlySet<T>>.Create(toValidate);
     }
 }
