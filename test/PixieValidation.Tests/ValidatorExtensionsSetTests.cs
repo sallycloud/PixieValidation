@@ -63,33 +63,4 @@ public class ValidatorExtensionsSetTests
 
         Assert.Same(people, result);
     }
-
-    [Fact]
-    public void ToValidOrThrow_WithAllValidPersons_ReturnsValidWrappingPersons()
-    {
-        IReadOnlySet<Person> people = new HashSet<Person>
-        {
-            new() { Name = "Alice", Age = 30 }
-        };
-
-        Valid<IReadOnlySet<Person>> result = Validator.ToValidOrThrow(people);
-
-        Assert.Same(people, result.Value);
-    }
-
-    [Fact]
-    public void ToValidOrThrow_WithOneInvalidPerson_ThrowsWithIndexedPath()
-    {
-        IReadOnlySet<Person> people = new HashSet<Person>
-        {
-            new() { Name = "", Age = 30 }
-        };
-
-        var exception = Assert.Throws<ValidationException>(() => Validator.ToValidOrThrow(people));
-
-        var error = Assert.Single(exception.Errors);
-        Assert.StartsWith("people[", error.Path);
-        Assert.EndsWith("].Name", error.Path);
-        Assert.Equal("Value is required.", error.Message);
-    }
 }

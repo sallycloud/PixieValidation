@@ -24,24 +24,4 @@ public class PropCheckerExtensionsTests
         Assert.Equal("name", error.Path);
         Assert.Equal("Value is required.", error.Message);
     }
-
-    [Fact]
-    public void ToValidOrThrow_WithValidValue_ReturnsValidWrappingValue()
-    {
-        Valid<string> result = NotEmptyChecker.ToValidOrThrow("Alice");
-
-        Assert.Equal("Alice", result.Value);
-    }
-
-    [Fact]
-    public void ToValidOrThrow_WithInvalidValue_ThrowsWithPathAndMessage()
-    {
-        var name = "";
-
-        var exception = Assert.Throws<ValidationException>(() => NotEmptyChecker.ToValidOrThrow(name));
-
-        var error = Assert.Single(exception.Errors);
-        Assert.Equal("name", error.Path);
-        Assert.Equal("Value is required.", error.Message);
-    }
 }

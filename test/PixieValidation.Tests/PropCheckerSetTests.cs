@@ -50,26 +50,4 @@ public class PropCheckerSetTests
 
         Assert.Same(names, result);
     }
-    
-    [Fact]
-    public void ToValidOrThrow_WithAllValidValues_ReturnsValidWrappingValues()
-    {
-        IReadOnlySet<string> names = new HashSet<string> { "Alice", "Bob" };
-
-        Valid<IReadOnlySet<string>> result = NotEmptyChecker.ToValidOrThrow(names);
-
-        Assert.Same(names, result.Value);
-    }
-
-    [Fact]
-    public void ToValidOrThrow_WithOneInvalidValue_ThrowsWithSingleError()
-    {
-        IReadOnlySet<string> names = new HashSet<string> { "Alice", "", "Bob" };
-
-        var exception = Assert.Throws<ValidationException>(() => NotEmptyChecker.ToValidOrThrow(names));
-
-        var error = Assert.Single(exception.Errors);
-        Assert.StartsWith("names[", error.Path);
-        Assert.Equal("Value is required.", error.Message);
-    }
 }

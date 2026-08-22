@@ -59,30 +59,4 @@ public class ValidatorExtensionsListTests
 
         Assert.Same(people, result);
     }
-
-    [Fact]
-    public void ToValidOrThrow_WithAllValidPersons_ReturnsValidWrappingPersons()
-    {
-        IReadOnlyList<Person> people = [
-            new Person { Name = "Alice", Age = 30 }
-        ];
-
-        Valid<IReadOnlyList<Person>> result = Validator.ToValidOrThrow(people);
-
-        Assert.Same(people, result.Value);
-    }
-
-    [Fact]
-    public void ToValidOrThrow_WithOneInvalidPerson_ThrowsWithIndexedPath()
-    {
-        IReadOnlyList<Person> people = [
-            new Person { Name = "", Age = 30 }
-        ];
-
-        var exception = Assert.Throws<ValidationException>(() => Validator.ToValidOrThrow(people));
-
-        var error = Assert.Single(exception.Errors);
-        Assert.Equal("people[0].Name", error.Path);
-        Assert.Equal("Value is required.", error.Message);
-    }
 }

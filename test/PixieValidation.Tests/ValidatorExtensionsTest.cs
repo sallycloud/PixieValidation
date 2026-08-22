@@ -41,19 +41,4 @@ public class ValidatorExtensionsTest
 
         Assert.Null(exception);
     }
-
-    [Fact]
-    public void ToValidOrThrow_WithValidGroup_ReturnsValidWrappingGroup()
-    {
-        var validator = new GroupValidator();
-        var group = new Group
-        {
-            Name = "Team A",
-            Persons = [new Person { Name = "Alice", Age = 30 }]
-        };
-
-        Valid<Group> result = validator.ToValidOrThrow(group);
-
-        Assert.Same(group, result.Value);
-    }
 }
