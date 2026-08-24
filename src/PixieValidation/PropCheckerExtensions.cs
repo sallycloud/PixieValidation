@@ -135,4 +135,13 @@ public static class PropCheckerExtensions
     /// </summary>
     public static PropChecker<T> WithMessage<T>(this NotChecker<T> not, string errorMessage) =>
         value => not.Checker(value) is null ? null : errorMessage;
+    
+    /// <summary>
+    /// Adapts a <see cref="PropChecker{T}"/> for a non-nullable reference type to accept a
+    /// nullable value, treating <c>null</c> as invalid. The counterpart to
+    /// <see cref="OptionalRef{T}"/>, which treats <c>null</c> as valid.
+    /// </summary>
+    public static PropChecker<T?> RequiredRef<T>(this PropChecker<T> checker, string errorMessage = "Value is required.")
+        where T : class =>
+        value => value is null ? errorMessage : checker(value);
 }

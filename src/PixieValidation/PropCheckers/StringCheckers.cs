@@ -6,6 +6,13 @@ public static class StringCheckers
 {
     public static PropChecker<string> NotEmpty(string errorMessage = "Value is required.") =>
         value => string.IsNullOrEmpty(value) ? errorMessage : null;
+    
+    /// <summary>
+    /// Checks that the value is neither <see langword="null"/>, empty, nor consists only of
+    /// whitespace. Stricter than <see cref="NotEmpty"/>, which allows whitespace-only values.
+    /// </summary>
+    public static PropChecker<string> NotBlank(string errorMessage = "Value is required.") =>
+        value => string.IsNullOrWhiteSpace(value) ? errorMessage : null;
 
     public static PropChecker<string> MinLength(int min) =>
         value => value.Length < min ? $"Must have at least {min} characters." : null;
