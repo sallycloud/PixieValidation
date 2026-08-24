@@ -1,8 +1,9 @@
 using System.Runtime.CompilerServices;
+using PixieValidation.PropCheckers;
 
 namespace PixieValidation;
 
-public static class PropValidatorExtensions
+public static class PropCheckerExtensions
 {
     /// <summary>
     /// Combines two checkers so both must pass. Returns the first error encountered.
@@ -82,4 +83,56 @@ public static class PropValidatorExtensions
             throw new ValidationException(errors);
         return values;
     }
+    
+    /// <summary>
+    /// Combines two checkers so that the value is valid if either one succeeds.
+    /// Neither checker's own error message survives; call <see cref="WithMessage{T}(OrChecker{T}, string)"/>
+    /// to supply the message used when both fail.
+    /// </summary>
+    public static OrChecker<T> Or<T>(this PropChecker<T> first, PropChecker<T> second) =>
+        new(value => first(value) is null || second(value) is null ? null : "Invalid value.");
+
+    /// <summary>
+    /// Extends an existing <see cref="OrChecker{T}"/> with one more alternative, so that the
+    /// value is valid if any of the combined checkers succeeds.
+    /// </summary>
+    public static OrChecker<T> Or<T>(this OrChecker<T> first, PropChecker<T> second) =>
+        new(value => first.Checker(value) is null || second(value) is null ? null : "Invalid value.");
+
+    /// <summary>
+    /// Combines two checkers so that the value is valid only if exactly one of them succeeds.
+    /// Neither checker's own error message survives; call <see cref="WithMessage{T}(XorChecker{T}, string)"/>
+    /// to supply the message used when both or neither succeed.
+    /// </summary>
+    public static XorChecker<T> Xor<T>(this PropChecker<T> first, PropChecker<T> second) =>
+        new(value => (first(value) is null) ^ (second(value) is null) ? null : "Invalid value.");
+
+    /// <summary>
+    /// Inverts a checker: the value is valid if <paramref name="checker"/> fails, and invalid if it succeeds.
+    /// The original checker's error message is discarded; call <see cref="WithMessage{T}(NotChecker{T}, string)"/>
+    /// to supply the message used when the wrapped checker unexpectedly succeeds.
+    /// </summary>
+    public static NotChecker<T> Not<T>(this PropChecker<T> checker) =>
+        new(value => checker(value) is not null ? null : "Invalid value.");
+
+    /// <summary>
+    /// Finalizes an <see cref="OrChecker{T}"/> into a usable <see cref="PropChecker{T}"/>, replacing
+    /// the placeholder error with <paramref name="errorMessage"/>.
+    /// </summary>
+    public static PropChecker<T> WithMessage<T>(this OrChecker<T> or, string errorMessage) =>
+        value => or.Checker(value) is null ? null : errorMessage;
+
+    /// <summary>
+    /// Finalizes a <see cref="XorChecker{T}"/> into a usable <see cref="PropChecker{T}"/>, replacing
+    /// the placeholder error with <paramref name="errorMessage"/>.
+    /// </summary>
+    public static PropChecker<T> WithMessage<T>(this XorChecker<T> xor, string errorMessage) =>
+        value => xor.Checker(value) is null ? null : errorMessage;
+
+    /// <summary>
+    /// Finalizes a <see cref="NotChecker{T}"/> into a usable <see cref="PropChecker{T}"/>, replacing
+    /// the placeholder error with <paramref name="errorMessage"/>.
+    /// </summary>
+    public static PropChecker<T> WithMessage<T>(this NotChecker<T> not, string errorMessage) =>
+        value => not.Checker(value) is null ? null : errorMessage;
 }

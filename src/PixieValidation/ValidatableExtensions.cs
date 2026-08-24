@@ -124,4 +124,62 @@ public static class ValidatableExtensions
             throw new ValidationException(errors.ToList());
         return Valid<IReadOnlySet<T>>.Create(validatables);
     }
+    
+    /// <summary>
+    /// Validates each value in <paramref name="validatables"/> and returns the collected errors, if any.
+    /// </summary>
+    public static ErrorCollector Validate<TKey, TValue>(
+        this IReadOnlyDictionary<TKey, TValue> validatables, ErrorCollector? errors = null)
+        where TValue : IValidatable
+        where TKey : notnull
+    {
+        errors ??= new ErrorCollector();
+        errors.Nested(validatables, "");
+        return errors;
+    }
+
+    /// <summary>
+    /// Validates each value in <paramref name="validatables"/> and throws a <see cref="ValidationException"/>
+    /// if any errors are found.
+    /// </summary>
+    /// <returns><paramref name="validatables"/>, if validation succeeds.</returns>
+    public static IReadOnlyDictionary<TKey, TValue> ValidateOrThrow<TKey, TValue>(
+        this IReadOnlyDictionary<TKey, TValue> validatables, ErrorCollector? errors = null)
+        where TValue : IValidatable
+        where TKey : notnull
+    {
+        errors ??= new ErrorCollector();
+        errors.Nested(validatables, "");
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return validatables;
+    }
+    
+    /// <summary>
+    /// Validates each item in <paramref name="validatables"/> and returns the collected errors, if any.
+    /// </summary>
+    public static ErrorCollector Validate<T>(this IEnumerable<T> validatables, ErrorCollector? errors = null)
+        where T : IValidatable
+    {
+        var materialized = validatables.ToList();
+        errors ??= new ErrorCollector();
+        errors.Nested(materialized, "");
+        return errors;
+    }
+
+    /// <summary>
+    /// Validates each item in <paramref name="validatables"/> and throws a <see cref="ValidationException"/>
+    /// if any errors are found.
+    /// </summary>
+    /// <returns><paramref name="validatables"/>, if validation succeeds.</returns>
+    public static IEnumerable<T> ValidateOrThrow<T>(this IEnumerable<T> validatables, ErrorCollector? errors = null)
+        where T : IValidatable
+    {
+        var materialized = validatables.ToList();
+        errors ??= new ErrorCollector();
+        errors.Nested(materialized, "");
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return materialized;
+    }
 }

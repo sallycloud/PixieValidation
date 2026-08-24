@@ -68,4 +68,60 @@ public static class ValidatorExtensions
             throw new ValidationException(errors.ToList());
         return toValidate;
     }
+    
+    /// <summary>
+    /// Validates each value in <paramref name="toValidate"/> using <paramref name="validator"/>
+    /// and returns the collected errors, if any.
+    /// </summary>
+    public static ErrorCollector Validate<TKey, TValue>(
+        this IValidator<TValue> validator, IReadOnlyDictionary<TKey, TValue> toValidate, ErrorCollector? errors = null)
+        where TKey : notnull
+    {
+        errors ??= new ErrorCollector();
+        errors.Nested(validator, toValidate, "");
+        return errors;
+    }
+
+    /// <summary>
+    /// Validates each value in <paramref name="toValidate"/> using <paramref name="validator"/>
+    /// and throws a <see cref="ValidationException"/> if any errors are found.
+    /// </summary>
+    /// <returns><paramref name="toValidate"/>, if validation succeeds.</returns>
+    public static IReadOnlyDictionary<TKey, TValue> ValidateOrThrow<TKey, TValue>(
+        this IValidator<TValue> validator, IReadOnlyDictionary<TKey, TValue> toValidate, ErrorCollector? errors = null)
+        where TKey : notnull
+    {
+        errors ??= new ErrorCollector();
+        errors.Nested(validator, toValidate, "");
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return toValidate;
+    }
+    
+    /// <summary>
+    /// Validates each item in <paramref name="toValidate"/> using <paramref name="validator"/>
+    /// and returns the collected errors, if any.
+    /// </summary>
+    public static ErrorCollector Validate<T>(this IValidator<T> validator, IEnumerable<T> toValidate, ErrorCollector? errors = null)
+    {
+        var materialized = toValidate.ToList();
+        errors ??= new ErrorCollector();
+        errors.Nested(validator, materialized, "");
+        return errors;
+    }
+
+    /// <summary>
+    /// Validates each item in <paramref name="toValidate"/> using <paramref name="validator"/>
+    /// and throws a <see cref="ValidationException"/> if any errors are found.
+    /// </summary>
+    /// <returns><paramref name="toValidate"/>, if validation succeeds.</returns>
+    public static IEnumerable<T> ValidateOrThrow<T>(this IValidator<T> validator, IEnumerable<T> toValidate, ErrorCollector? errors = null)
+    {
+        var materialized = toValidate.ToList();
+        errors ??= new ErrorCollector();
+        errors.Nested(validator, materialized, "");
+        if (errors.Any())
+            throw new ValidationException(errors.ToList());
+        return materialized;
+    }
 }

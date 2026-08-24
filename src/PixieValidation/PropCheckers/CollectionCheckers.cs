@@ -10,20 +10,4 @@ public static class CollectionCheckers
 
     public static PropChecker<IReadOnlyCollection<T>> MaxCount<T>(int max) =>
         value => value.Count > max ? $"Must not contain more than {max} items." : null;
-    
-    /// <summary>
-    /// Applies <paramref name="itemChecker"/> to each element. Returns the first error found,
-    /// including the offending value.
-    /// </summary>
-    public static PropChecker<IEnumerable<T>> ForEach<T>(PropChecker<T> itemChecker) =>
-        values =>
-        {
-            foreach (var value in values)
-            {
-                var error = itemChecker(value);
-                if (error is not null)
-                    return $"{error} ({value})";
-            }
-            return null;
-        };
 }

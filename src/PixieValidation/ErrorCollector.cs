@@ -147,6 +147,43 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
             i++;
         }
     }
+    
+    /// <summary>
+    /// Validates each value in <paramref name="children"/>, prefixing errors' paths with
+    /// <paramref name="propertyName"/> and the entry's key (e.g. <c>PersonsByRole[Captain].Name</c>).
+    /// </summary>
+    public void Nested<TKey, TValue>(
+        IReadOnlyDictionary<TKey, TValue> children,
+        [CallerArgumentExpression(nameof(children))] string? propertyName = null)
+        where TValue : IValidatable
+        where TKey : notnull
+    {
+        foreach (var (key, value) in children)
+        {
+            _path.Push($"{propertyName}[{key}]");
+            value.ValidateAndCollect(this);
+            _path.Pop();
+        }
+    }
+    
+    /// <summary>
+    /// Validates each value in <paramref name="children"/> using <paramref name="validator"/>,
+    /// prefixing errors' paths with <paramref name="propertyName"/> and the entry's key
+    /// (e.g. <c>PersonsByRole[Captain].Name</c>).
+    /// </summary>
+    public void Nested<TKey, TValue>(
+        IValidator<TValue> validator,
+        IReadOnlyDictionary<TKey, TValue> children,
+        [CallerArgumentExpression(nameof(children))] string? propertyName = null)
+        where TKey : notnull
+    {
+        foreach (var (key, value) in children)
+        {
+            _path.Push($"{propertyName}[{key}]");
+            validator.ValidateAndCollect(value, this);
+            _path.Pop();
+        }
+    }
 
     private string BuildPath(string propertyName) =>
         _path.Count == 0
@@ -160,4 +197,43 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     // only reachable when the instance is used as a plain IEnumerable. Forwards to the
     // public, generic GetEnumerator() above.
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    
+    /// <summary>
+    /// Validates each item in <paramref name="children"/>, prefixing errors' paths with
+    /// <paramref name="propertyName"/> and the item's enumeration index (e.g. <c>Persons[1].Name</c>).
+    /// </summary>
+    public void Nested<T>(
+        IEnumerable<T> children,
+        [CallerArgumentExpression(nameof(children))] string? propertyName = null)
+        where T : IValidatable
+    {
+        var i = 0;
+        foreach (var child in children)
+        {
+            _path.Push($"{propertyName}[{i}]");
+            child.ValidateAndCollect(this);
+            _path.Pop();
+            i++;
+        }
+    }
+
+    /// <summary>
+    /// Validates each item in <paramref name="children"/> using <paramref name="validator"/>,
+    /// prefixing errors' paths with <paramref name="propertyName"/> and the item's enumeration index
+    /// (e.g. <c>Persons[1].Name</c>).
+    /// </summary>
+    public void Nested<T>(
+        IValidator<T> validator,
+        IEnumerable<T> children,
+        [CallerArgumentExpression(nameof(children))] string? propertyName = null)
+    {
+        var i = 0;
+        foreach (var child in children)
+        {
+            _path.Push($"{propertyName}[{i}]");
+            validator.ValidateAndCollect(child, this);
+            _path.Pop();
+            i++;
+        }
+    }
 }
