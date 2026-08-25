@@ -53,4 +53,31 @@ public class ErrorCollectorSetTests
         Assert.StartsWith("people[", error.Path);
         Assert.EndsWith("].Name", error.Path);
     }
+    
+    [Fact]
+    public void Nested_WithNullSetOfChildren_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        IReadOnlySet<Person>? people = null;
+
+        errors.Nested(people);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
+
+    [Fact]
+    public void Nested_WithValidatorAndNullSetOfChildren_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        var validator = new PersonValidator();
+        IReadOnlySet<Person>? people = null;
+
+        errors.Nested(validator, people);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

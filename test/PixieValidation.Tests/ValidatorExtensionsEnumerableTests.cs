@@ -46,4 +46,16 @@ public class ValidatorExtensionsEnumerableTests
 
         Assert.Empty(result);
     }
+    
+    [Fact]
+    public void ValidateOrThrow_WithNullEnumerable_ThrowsWithNullError()
+    {
+        IEnumerable<Person>? people = null;
+
+        var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people!));
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

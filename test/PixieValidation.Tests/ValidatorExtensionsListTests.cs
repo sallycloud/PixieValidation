@@ -59,4 +59,16 @@ public class ValidatorExtensionsListTests
 
         Assert.Same(people, result);
     }
+    
+    [Fact]
+    public void ValidateOrThrow_WithNullList_ThrowsWithNullError()
+    {
+        IReadOnlyList<Person>? people = null;
+
+        var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people));
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

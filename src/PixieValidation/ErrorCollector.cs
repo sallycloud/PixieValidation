@@ -38,7 +38,7 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// The property name is inferred from the calling expression unless given explicitly.
     /// </summary>
     public void CheckAll<T>(
-        IReadOnlyCollection<T> values,
+        IReadOnlyCollection<T>? values,
         PropChecker<T> checker,
         [CallerArgumentExpression(nameof(values))] string? basePath = null)
     {
@@ -50,11 +50,13 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// Validates <paramref name="child"/>, prefixing its errors' paths with <paramref name="propertyName"/>.
     /// </summary>
     public void Nested(
-        IValidatable child,
+        IValidatable? child,
         [CallerArgumentExpression(nameof(child))] string? propertyName = null)
     {
+        if (CheckNotNull(child, propertyName)) return;
+
         _path.Push(propertyName!);
-        child.ValidateAndCollect(this);
+        child!.ValidateAndCollect(this);
         _path.Pop();
     }
     
@@ -64,11 +66,14 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// </summary>
     public void Nested<T>(
         IValidator<T> validator,
-        T child,
+        T? child,
         [CallerArgumentExpression(nameof(child))] string? propertyName = null)
+        where T : class
     {
+        if (CheckNotNull(child, propertyName)) return;
+
         _path.Push(propertyName!);
-        validator.ValidateAndCollect(child, this);
+        validator.ValidateAndCollect(child!, this);
         _path.Pop();
     }
 
@@ -77,11 +82,13 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// <paramref name="propertyName"/> and the item's index (e.g. <c>Persons[1].Name</c>).
     /// </summary>
     public void Nested<T>(
-        IReadOnlyList<T> children,
+        IReadOnlyList<T>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
         where T : IValidatable
     {
-        for (var i = 0; i < children.Count; i++)
+        if (CheckNotNull(children, propertyName)) return;
+
+        for (var i = 0; i < children!.Count; i++)
         {
             _path.Push($"{propertyName}[{i}]");
             children[i].ValidateAndCollect(this);
@@ -96,10 +103,12 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// </summary>
     public void Nested<T>(
         IValidator<T> validator,
-        IReadOnlyList<T> children,
+        IReadOnlyList<T>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
     {
-        for (var i = 0; i < children.Count; i++)
+        if (CheckNotNull(children, propertyName)) return;
+
+        for (var i = 0; i < children!.Count; i++)
         {
             _path.Push($"{propertyName}[{i}]");
             validator.ValidateAndCollect(children[i], this);
@@ -113,12 +122,14 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// Since sets have no guaranteed order, this index may not be stable across calls.
     /// </summary>
     public void Nested<T>(
-        IReadOnlySet<T> children,
+        IReadOnlySet<T>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
         where T : IValidatable
     {
+        if (CheckNotNull(children, propertyName)) return;
+
         var i = 0;
-        foreach (var child in children)
+        foreach (var child in children!)
         {
             _path.Push($"{propertyName}[{i}]");
             child.ValidateAndCollect(this);
@@ -135,11 +146,13 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// </summary>
     public void Nested<T>(
         IValidator<T> validator,
-        IReadOnlySet<T> children,
+        IReadOnlySet<T>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
     {
+        if (CheckNotNull(children, propertyName)) return;
+
         var i = 0;
-        foreach (var child in children)
+        foreach (var child in children!)
         {
             _path.Push($"{propertyName}[{i}]");
             validator.ValidateAndCollect(child, this);
@@ -153,12 +166,14 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// <paramref name="propertyName"/> and the entry's key (e.g. <c>PersonsByRole[Captain].Name</c>).
     /// </summary>
     public void Nested<TKey, TValue>(
-        IReadOnlyDictionary<TKey, TValue> children,
+        IReadOnlyDictionary<TKey, TValue>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
         where TValue : IValidatable
         where TKey : notnull
     {
-        foreach (var (key, value) in children)
+        if (CheckNotNull(children, propertyName)) return;
+        
+        foreach (var (key, value) in children!)
         {
             _path.Push($"{propertyName}[{key}]");
             value.ValidateAndCollect(this);
@@ -173,11 +188,13 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// </summary>
     public void Nested<TKey, TValue>(
         IValidator<TValue> validator,
-        IReadOnlyDictionary<TKey, TValue> children,
+        IReadOnlyDictionary<TKey, TValue>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
         where TKey : notnull
     {
-        foreach (var (key, value) in children)
+        if (CheckNotNull(children, propertyName)) return;
+        
+        foreach (var (key, value) in children!)
         {
             _path.Push($"{propertyName}[{key}]");
             validator.ValidateAndCollect(value, this);
@@ -203,12 +220,14 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// <paramref name="propertyName"/> and the item's enumeration index (e.g. <c>Persons[1].Name</c>).
     /// </summary>
     public void Nested<T>(
-        IEnumerable<T> children,
+        IEnumerable<T>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
         where T : IValidatable
     {
+        if (CheckNotNull(children, propertyName)) return;
+        
         var i = 0;
-        foreach (var child in children)
+        foreach (var child in children!)
         {
             _path.Push($"{propertyName}[{i}]");
             child.ValidateAndCollect(this);
@@ -224,16 +243,29 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// </summary>
     public void Nested<T>(
         IValidator<T> validator,
-        IEnumerable<T> children,
+        IEnumerable<T>? children,
         [CallerArgumentExpression(nameof(children))] string? propertyName = null)
     {
+        if (CheckNotNull(children, propertyName)) return;
+        
         var i = 0;
-        foreach (var child in children)
+        foreach (var child in children!)
         {
             _path.Push($"{propertyName}[{i}]");
             validator.ValidateAndCollect(child, this);
             _path.Pop();
             i++;
         }
+    }
+    
+    // Helpers
+    
+    private bool CheckNotNull(object? collection, string? propertyName)
+    {
+        if (collection is not null)
+            return false;
+
+        _errors.Add(new ValidationError(BuildPath(propertyName!), "Must not be null."));
+        return true;
     }
 }

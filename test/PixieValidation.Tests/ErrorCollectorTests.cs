@@ -164,4 +164,17 @@ public class ErrorCollectorTests
         var error = Assert.Single(items);
         Assert.Equal("Name", error.Path);
     }
+    
+    [Fact]
+    public void Nested_WithNullChild_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        Person? person = null;
+
+        errors.Nested(person);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("person", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

@@ -58,4 +58,14 @@ public class CollectionsCheckersTests
 
         Assert.Equal("Must have at least 5 characters. (Bob)", error);
     }
+    
+    [Fact]
+    public void FirstInvalid_WithNullSequence_ReturnsNullMessage()
+    {
+        var checker = CollectionCheckers.FirstInvalid(NotEmptyChecker);
+
+        var error = checker(null);
+
+        Assert.Equal("Must not be null.", error);
+    }
 }

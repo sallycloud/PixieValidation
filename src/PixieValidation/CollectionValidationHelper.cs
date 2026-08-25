@@ -3,10 +3,16 @@ namespace PixieValidation;
 internal static class CollectionValidationHelper
 {
     public static IEnumerable<ValidationError> CollectErrors<T>(
-        IReadOnlyCollection<T> values,
+        IReadOnlyCollection<T>? values,
         PropChecker<T> checker,
         string basePath)
     {
+        if (values is null)
+        {
+            yield return new ValidationError(basePath, "Must not be null.");
+            yield break;
+        }
+
         var i = 0;
         foreach (var value in values)
         {

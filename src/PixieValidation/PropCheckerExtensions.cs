@@ -56,13 +56,13 @@ public static class PropCheckerExtensions
     /// <returns><paramref name="values"/>, if every element is valid.</returns>
     public static IReadOnlyList<T> ValidateOrThrow<T>(
         this PropChecker<T> checker,
-        IReadOnlyList<T> values,
+        IReadOnlyList<T>? values,
         [CallerArgumentExpression(nameof(values))] string? basePath = null)
     {
         var errors = CollectionValidationHelper.CollectErrors(values, checker, basePath!).ToList();
         if (errors.Count > 0)
             throw new ValidationException(errors);
-        return values;
+        return values!;
     }
 
     /// <summary>
@@ -75,13 +75,13 @@ public static class PropCheckerExtensions
     /// <returns><paramref name="values"/>, if every element is valid.</returns>
     public static IReadOnlySet<T> ValidateOrThrow<T>(
         this PropChecker<T> checker,
-        IReadOnlySet<T> values,
+        IReadOnlySet<T>? values,
         [CallerArgumentExpression(nameof(values))] string? basePath = null)
     {
         var errors = CollectionValidationHelper.CollectErrors(values, checker, basePath!).ToList();
         if (errors.Count > 0)
             throw new ValidationException(errors);
-        return values;
+        return values!;
     }
     
     /// <summary>

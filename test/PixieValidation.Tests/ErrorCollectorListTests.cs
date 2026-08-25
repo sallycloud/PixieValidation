@@ -141,4 +141,31 @@ public class ErrorCollectorListTests
         var error = Assert.Single(errors);
         Assert.Equal("CustomNames[0]", error.Path);
     }
+    
+    [Fact]
+    public void Nested_WithNullListOfChildren_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        IReadOnlyList<Person>? people = null;
+
+        errors.Nested(people);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
+
+    [Fact]
+    public void Nested_WithValidatorAndNullListOfChildren_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        var validator = new PersonValidator();
+        IReadOnlyList<Person>? people = null;
+
+        errors.Nested(validator, people);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

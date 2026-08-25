@@ -43,4 +43,16 @@ public class ValidatableExtensionsDictionaryTests
 
         Assert.Same(people, result);
     }
+    
+    [Fact]
+    public void ValidateOrThrow_WithNullDictionary_ThrowsWithNullError()
+    {
+        IReadOnlyDictionary<string, Person>? people = null;
+
+        var exception = Assert.Throws<ValidationException>(() => people.ValidateOrThrow());
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

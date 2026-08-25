@@ -82,4 +82,28 @@ public class ValidatableExtensionsListTests
         Assert.Equal("people[0].Name", error.Path);
         Assert.Equal("Value is required.", error.Message);
     }
+    
+    [Fact]
+    public void ValidateOrThrow_WithNullList_ThrowsWithNullError()
+    {
+        IReadOnlyList<Person>? people = null;
+
+        var exception = Assert.Throws<ValidationException>(() => people.ValidateOrThrow());
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
+
+    [Fact]
+    public void ToValidOrThrow_WithNullList_ThrowsWithNullError()
+    {
+        IReadOnlyList<Person>? people = null;
+
+        var exception = Assert.Throws<ValidationException>(() => people.ToValidOrThrow());
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

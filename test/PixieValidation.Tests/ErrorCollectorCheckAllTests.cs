@@ -79,4 +79,18 @@ public class ErrorCollectorCheckAllTests
 
         Assert.Null(exception);
     }
+    
+    [Fact]
+    public void CheckAll_WithNullCollection_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        PropChecker<string> notEmptyChecker = value => string.IsNullOrEmpty(value) ? "Value is required." : null;
+        IReadOnlyCollection<string>? names = null;
+
+        errors.CheckAll(names, notEmptyChecker);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("names", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

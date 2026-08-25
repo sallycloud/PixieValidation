@@ -24,9 +24,12 @@ public static class CollectionCheckers
     /// pass/fail result. Prefer <c>CheckAll</c> whenever an <see cref="ErrorCollector"/> is available
     /// and you want every invalid element reported individually.
     /// </remarks>
-    public static PropChecker<IEnumerable<T>> FirstInvalid<T>(PropChecker<T> itemChecker) =>
+    public static PropChecker<IEnumerable<T>?> FirstInvalid<T>(PropChecker<T> itemChecker) =>
         values =>
         {
+            if (values is null)
+                return "Must not be null.";
+            
             foreach (var value in values)
             {
                 var error = itemChecker(value);

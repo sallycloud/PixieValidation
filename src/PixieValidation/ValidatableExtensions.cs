@@ -53,7 +53,7 @@ public static class ValidatableExtensions
     /// </summary>
     /// <returns><paramref name="validatables"/>, if every element is valid.</returns>
     public static IReadOnlyList<T> ValidateOrThrow<T>(
-        this IReadOnlyList<T> validatables,
+        this IReadOnlyList<T>? validatables,
         [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where T : IValidatable
     {
@@ -61,7 +61,7 @@ public static class ValidatableExtensions
         errors.Nested(validatables, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
-        return validatables;
+        return validatables!;
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public static class ValidatableExtensions
     /// </summary>
     /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="validatables"/>.</returns>
     public static Valid<IReadOnlyList<T>> ToValidOrThrow<T>(
-        this IReadOnlyList<T> validatables,
+        this IReadOnlyList<T>? validatables,
         [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where T : IValidatable
     {
@@ -81,7 +81,7 @@ public static class ValidatableExtensions
         errors.Nested(validatables, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
-        return Valid<IReadOnlyList<T>>.Create(validatables);
+        return Valid<IReadOnlyList<T>>.Create(validatables!);
     }
     
     /// <summary>
@@ -94,7 +94,7 @@ public static class ValidatableExtensions
     /// </summary>
     /// <returns><paramref name="validatables"/>, if every element is valid.</returns>
     public static IReadOnlySet<T> ValidateOrThrow<T>(
-        this IReadOnlySet<T> validatables,
+        this IReadOnlySet<T>? validatables,
         [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where T : IValidatable
     {
@@ -102,7 +102,7 @@ public static class ValidatableExtensions
         errors.Nested(validatables, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
-        return validatables;
+        return validatables!;
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public static class ValidatableExtensions
     /// </summary>
     /// <returns>A <see cref="Valid{T}"/> wrapping <paramref name="validatables"/>.</returns>
     public static Valid<IReadOnlySet<T>> ToValidOrThrow<T>(
-        this IReadOnlySet<T> validatables,
+        this IReadOnlySet<T>? validatables,
         [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where T : IValidatable
     {
@@ -122,14 +122,14 @@ public static class ValidatableExtensions
         errors.Nested(validatables, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
-        return Valid<IReadOnlySet<T>>.Create(validatables);
+        return Valid<IReadOnlySet<T>>.Create(validatables!);
     }
     
     /// <summary>
     /// Validates each value in <paramref name="validatables"/> and returns the collected errors, if any.
     /// </summary>
     public static ErrorCollector Validate<TKey, TValue>(
-        this IReadOnlyDictionary<TKey, TValue> validatables, ErrorCollector? errors = null)
+        this IReadOnlyDictionary<TKey, TValue>? validatables, ErrorCollector? errors = null)
         where TValue : IValidatable
         where TKey : notnull
     {
@@ -144,7 +144,7 @@ public static class ValidatableExtensions
     /// </summary>
     /// <returns><paramref name="validatables"/>, if validation succeeds.</returns>
     public static IReadOnlyDictionary<TKey, TValue> ValidateOrThrow<TKey, TValue>(
-        this IReadOnlyDictionary<TKey, TValue> validatables, ErrorCollector? errors = null)
+        this IReadOnlyDictionary<TKey, TValue>? validatables, ErrorCollector? errors = null)
         where TValue : IValidatable
         where TKey : notnull
     {
@@ -152,17 +152,24 @@ public static class ValidatableExtensions
         errors.Nested(validatables, "");
         if (errors.Any())
             throw new ValidationException(errors.ToList());
-        return validatables;
+        return validatables!;
     }
     
     /// <summary>
     /// Validates each item in <paramref name="validatables"/> and returns the collected errors, if any.
     /// </summary>
-    public static ErrorCollector Validate<T>(this IEnumerable<T> validatables, ErrorCollector? errors = null)
+    public static ErrorCollector Validate<T>(
+        this IEnumerable<T>? validatables, 
+        ErrorCollector? errors = null)
         where T : IValidatable
     {
-        var materialized = validatables.ToList();
         errors ??= new ErrorCollector();
+        if (validatables is null)
+        {
+            errors.Nested((IEnumerable<T>?)null, "");
+            return errors;
+        }
+        var materialized = validatables.ToList();
         errors.Nested(materialized, "");
         return errors;
     }
@@ -172,11 +179,18 @@ public static class ValidatableExtensions
     /// if any errors are found.
     /// </summary>
     /// <returns><paramref name="validatables"/>, if validation succeeds.</returns>
-    public static IEnumerable<T> ValidateOrThrow<T>(this IEnumerable<T> validatables, ErrorCollector? errors = null)
+    public static IEnumerable<T> ValidateOrThrow<T>(
+        this IEnumerable<T>? validatables, 
+        ErrorCollector? errors = null)
         where T : IValidatable
     {
-        var materialized = validatables.ToList();
         errors ??= new ErrorCollector();
+        if (validatables is null)
+        {
+            errors.Nested((IEnumerable<T>?)null, "");
+            throw new ValidationException(errors.ToList());
+        }
+        var materialized = validatables.ToList();
         errors.Nested(materialized, "");
         if (errors.Any())
             throw new ValidationException(errors.ToList());

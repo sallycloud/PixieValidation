@@ -50,4 +50,16 @@ public class PropCheckerSetTests
 
         Assert.Same(names, result);
     }
+    
+    [Fact]
+    public void ValidateOrThrow_WithNullSet_ThrowsWithNullError()
+    {
+        IReadOnlySet<string>? names = null;
+
+        var exception = Assert.Throws<ValidationException>(() => NotEmptyChecker.ValidateOrThrow(names));
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("names", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

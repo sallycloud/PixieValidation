@@ -52,4 +52,15 @@ public class CollectionValidationHelperTests
         Assert.Contains(errors, e => e.Path == "names[0]" && e.Message == "Value is required.");
         Assert.Contains(errors, e => e.Path == "names[2]" && e.Message == "Value is required.");
     }
+    
+    [Fact]
+    public void CollectErrors_WithNullCollection_ReturnsSingleNullError()
+    {
+        var errors = CollectionValidationHelper.CollectErrors<string>(
+            null, NotEmptyChecker, "names").ToList();
+
+        var error = Assert.Single(errors);
+        Assert.Equal("names", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }

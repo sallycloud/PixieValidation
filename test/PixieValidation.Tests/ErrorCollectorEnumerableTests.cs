@@ -41,4 +41,31 @@ public class ErrorCollectorEnumerableTests
         Assert.Contains(list, e => e.Path == "people[1].Name" && e.Message == "Value is required.");
         Assert.Contains(list, e => e.Path == "people[1].Age" && e.Message == "Must be between 0 and 150.");
     }
+    
+    [Fact]
+    public void Nested_WithNullEnumerableOfChildren_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        IEnumerable<Person>? people = null;
+
+        errors.Nested(people);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
+
+    [Fact]
+    public void Nested_WithValidatorAndNullEnumerableOfChildren_AddsNullError()
+    {
+        var errors = new ErrorCollector();
+        var validator = new PersonValidator();
+        IEnumerable<Person>? people = null;
+
+        errors.Nested(validator, people);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
 }
