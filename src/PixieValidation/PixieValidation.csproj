@@ -4,10 +4,17 @@
         <Authors>sallycloud</Authors>
         <Description>Lightweight validation framework: rule functions, path-aware error collection, no value-object/converter overhead.</Description>
         <RepositoryUrl>https://github.com/sallycloud/PixieValidation</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/sallycloud/PixieValidation</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>validation;dotnet;dotnet-core</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="PixieValidation.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
