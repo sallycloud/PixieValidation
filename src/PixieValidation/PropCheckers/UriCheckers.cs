@@ -23,4 +23,11 @@ public static class UriCheckers
     
     public static readonly PropChecker<string> IsAbsoluteHttpUri =
         IsAbsoluteUri().And(IsHttpOrHttps);
+    
+    /// <summary>
+    /// Fails if the raw string ends with a slash. Checks the string, not the parsed
+    /// <see cref="Uri"/>: a parsed URI without a path always reports '/' as its path.
+    /// </summary>
+    public static readonly PropChecker<string> HasNoTrailingSlash =
+        value => value.EndsWith('/') ? "Must not end with a trailing slash." : null;
 }
