@@ -330,7 +330,7 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
     /// and records the error, if any. The property name is inferred from the calling expression
     /// unless given explicitly.
     /// </summary>
-    public void Check<T, TAgainst>(
+    public void CheckAgainst<T, TAgainst>(
         T value,
         TAgainst against,
         PropAgainstChecker<T, TAgainst> checker,

@@ -68,7 +68,7 @@ public class ErrorCollectorNestedAgainstTests
         var errors = new ErrorCollector();
         PropAgainstChecker<int, int> lessThanChecker = (value, against) => value < against ? null : "Must be less than context.";
 
-        errors.Check(3, 5, lessThanChecker);
+        errors.CheckAgainst(3, 5, lessThanChecker);
 
         Assert.Empty(errors);
     }
@@ -80,7 +80,7 @@ public class ErrorCollectorNestedAgainstTests
         PropAgainstChecker<int, int> lessThanChecker = (value, against) => value < against ? null : "Must be less than context.";
         var quantity = 10;
 
-        errors.Check(quantity, 5, lessThanChecker);
+        errors.CheckAgainst(quantity, 5, lessThanChecker);
 
         var error = Assert.Single(errors);
         Assert.Equal("quantity", error.Path);
@@ -93,7 +93,7 @@ public class ErrorCollectorNestedAgainstTests
         var errors = new ErrorCollector();
         PropAgainstChecker<int, int> lessThanChecker = (value, against) => value < against ? null : "Must be less than context.";
 
-        errors.Check(10, 5, lessThanChecker, "CustomName");
+        errors.CheckAgainst(10, 5, lessThanChecker, "CustomName");
 
         var error = Assert.Single(errors);
         Assert.Equal("CustomName", error.Path);

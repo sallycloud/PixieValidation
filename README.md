@@ -76,7 +76,7 @@ no API key involved). To publish a new version:
 3. Tag the commit with a `v`-prefixed version and push the tag:
 
 ```powershell
-VERSION=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
+$VERSION = (Select-String -Path Directory.Build.props -Pattern '(?<=<Version>)[^<]+').Matches[0].Value
 git tag "v$VERSION"
 git push origin "v$VERSION"
 ```
