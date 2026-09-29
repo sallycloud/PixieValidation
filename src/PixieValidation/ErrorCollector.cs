@@ -324,4 +324,21 @@ public sealed class ErrorCollector : IEnumerable<ValidationError>
             _path.Pop();
         }
     }
+    
+    /// <summary>
+    /// Runs <paramref name="checker"/> against <paramref name="value"/> and <paramref name="against"/>,
+    /// and records the error, if any. The property name is inferred from the calling expression
+    /// unless given explicitly.
+    /// </summary>
+    public void Check<T, TAgainst>(
+        T value,
+        TAgainst against,
+        PropAgainstChecker<T, TAgainst> checker,
+        [CallerArgumentExpression(nameof(value))]
+        string? propertyName = null)
+    {
+        var error = checker(value, against);
+        if (error is not null)
+            _errors.Add(new ValidationError(BuildPath(propertyName!), error));
+    }
 }

@@ -2,7 +2,7 @@
 
 Define your type and how to validate it by implementing `IValidatable`:
 
-\```csharp
+```csharp
 using PixieValidation;
 using PixieValidation.PropCheckers;
 
@@ -23,11 +23,11 @@ public required string Email { get; init; }
         errors.Check(Email, EmailChecker);
     }
 }
-\```
+```
 
 Then validate an instance:
 
-\```csharp
+```csharp
 var user = new User { Name = "", Email = "not-an-email" };
 
 // Throws a ValidationException listing every error, with paths like "Name" and "Email"
@@ -37,7 +37,7 @@ user.ValidateOrThrow();
 var errors = user.Validate();
 foreach (var error in errors)
 Console.WriteLine($"{error.Path}: {error.Message}");
-\```
+```
 
 Nested objects and collections (lists, sets, dictionaries) are validated automatically via `errors.Nested(...)` — see the `PropCheckers` namespace for the full set of built-in rule functions (strings, numbers, dates, GUIDs, enums, collections, and more).
 
@@ -56,15 +56,15 @@ nothing meaningful about which rules were actually applied.
 
 # Build
 
-\```bash
+```bash
 dotnet build
-\```
+```
 
 #  Pack
 
-\```bash
+```bash
 dotnet pack src/PixieValidation/PixieValidation.csproj -c Release
-\```
+```
 
 # Releasing
 
@@ -75,11 +75,15 @@ no API key involved). To publish a new version:
 2. Commit and push the change.
 3. Tag the commit with a `v`-prefixed version and push the tag:
 
-\```bash
+```powershell
 VERSION=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
 git tag "v$VERSION"
 git push origin "v$VERSION"
-\```
+```
+
+$VERSION = (Select-String -Path Directory.Build.props -Pattern '(?<=<Version>)[^<]+').Matches[0].Value
+git tag "v$VERSION"
+git push origin "v$VERSION"
 
 Pushing the tag triggers `.github/workflows/publish.yml`, which builds, tests, packs, and
 publishes the package to nuget.org.

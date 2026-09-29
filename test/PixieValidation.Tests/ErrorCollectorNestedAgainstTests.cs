@@ -61,4 +61,41 @@ public class ErrorCollectorNestedAgainstTests
         Assert.Equal("item.Size", list[0].Path);
         Assert.Equal("Other", list[1].Path);
     }
+    
+    [Fact]
+    public void Check_WithValidValueAgainstContext_DoesNotAddError()
+    {
+        var errors = new ErrorCollector();
+        PropAgainstChecker<int, int> lessThanChecker = (value, against) => value < against ? null : "Must be less than context.";
+
+        errors.Check(3, 5, lessThanChecker);
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public void Check_WithInvalidValueAgainstContext_AddsErrorWithInferredPropertyName()
+    {
+        var errors = new ErrorCollector();
+        PropAgainstChecker<int, int> lessThanChecker = (value, against) => value < against ? null : "Must be less than context.";
+        var quantity = 10;
+
+        errors.Check(quantity, 5, lessThanChecker);
+
+        var error = Assert.Single(errors);
+        Assert.Equal("quantity", error.Path);
+        Assert.Equal("Must be less than context.", error.Message);
+    }
+
+    [Fact]
+    public void Check_WithExplicitPropertyNameAgainstContext_UsesGivenName()
+    {
+        var errors = new ErrorCollector();
+        PropAgainstChecker<int, int> lessThanChecker = (value, against) => value < against ? null : "Must be less than context.";
+
+        errors.Check(10, 5, lessThanChecker, "CustomName");
+
+        var error = Assert.Single(errors);
+        Assert.Equal("CustomName", error.Path);
+    }
 }
