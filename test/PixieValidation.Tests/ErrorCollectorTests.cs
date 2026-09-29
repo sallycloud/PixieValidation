@@ -1,4 +1,3 @@
-using PixieValidation.Domain;
 using PixieValidation.Tests.Domain;
 
 namespace PixieValidation.Tests;

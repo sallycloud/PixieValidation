@@ -68,19 +68,22 @@ public static class ValidatorExtensions
             throw new ValidationException(errors.ToList());
         return toValidate!;
     }
-    
+
     /// <summary>
     /// Validates each value in <paramref name="toValidate"/> using <paramref name="validator"/>
-    /// and returns the collected errors, if any.
+    /// and returns the collected errors, if any. Errors are prefixed with the argument expression
+    /// and the entry's key (e.g. <c>people[Coach].Name</c>).
     /// </summary>
     public static ErrorCollector Validate<TKey, TValue>(
-        this IValidator<TValue> validator, 
-        IReadOnlyDictionary<TKey, TValue>? toValidate, 
-        ErrorCollector? errors = null)
+        this IValidator<TValue> validator,
+        IReadOnlyDictionary<TKey, TValue>? toValidate,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
         where TKey : notnull
     {
         errors ??= new ErrorCollector();
-        errors.Nested(validator, toValidate, "");
+        errors.Nested(validator, toValidate, basePath!);
         return errors;
     }
 
@@ -90,35 +93,41 @@ public static class ValidatorExtensions
     /// </summary>
     /// <returns><paramref name="toValidate"/>, if validation succeeds.</returns>
     public static IReadOnlyDictionary<TKey, TValue> ValidateOrThrow<TKey, TValue>(
-        this IValidator<TValue> validator, 
-        IReadOnlyDictionary<TKey, TValue>? toValidate, 
-        ErrorCollector? errors = null)
+        this IValidator<TValue> validator,
+        IReadOnlyDictionary<TKey, TValue>? toValidate,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
         where TKey : notnull
     {
         errors ??= new ErrorCollector();
-        errors.Nested(validator, toValidate, "");
+        errors.Nested(validator, toValidate, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
         return toValidate!;
     }
-    
+
     /// <summary>
     /// Validates each item in <paramref name="toValidate"/> using <paramref name="validator"/>
-    /// and returns the collected errors, if any.
+    /// and returns the collected errors, if any. Errors are prefixed with the argument expression
+    /// and the item's index (e.g. <c>people[1].Name</c>).
     /// </summary>
     public static ErrorCollector Validate<T>(
-        this IValidator<T> validator, 
-        IEnumerable<T>? toValidate, 
-        ErrorCollector? errors = null)
+        this IValidator<T> validator,
+        IEnumerable<T>? toValidate,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
     {
         errors ??= new ErrorCollector();
         if (toValidate is null)
         {
-            errors.Nested(validator, (IEnumerable<T>?)null, "");
+            errors.Nested(validator, null, basePath!);
             return errors;
         }
+
         var materialized = toValidate.ToList();
-        errors.Nested(validator, materialized, "");
+        errors.Nested(validator, materialized, basePath!);
         return errors;
     }
 
@@ -126,21 +135,23 @@ public static class ValidatorExtensions
     /// Validates each item in <paramref name="toValidate"/> using <paramref name="validator"/>
     /// and throws a <see cref="ValidationException"/> if any errors are found.
     /// </summary>
-    /// <returns><paramref name="toValidate"/>, if validation succeeds.</returns>
+    /// <returns>The materialized items, if validation succeeds.</returns>
     public static IEnumerable<T> ValidateOrThrow<T>(
-        this IValidator<T> validator, 
-        IEnumerable<T>? toValidate, 
-        ErrorCollector? errors = null)
+        this IValidator<T> validator,
+        IEnumerable<T>? toValidate,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(toValidate))]
+        string? basePath = null)
     {
         errors ??= new ErrorCollector();
         if (toValidate is null)
         {
-            errors.Nested(validator, (IEnumerable<T>?)null, "");
+            errors.Nested(validator, null, basePath!);
             throw new ValidationException(errors.ToList());
         }
+
         var materialized = toValidate.ToList();
-        
-        errors.Nested(validator, materialized, "");
+        errors.Nested(validator, materialized, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
         return materialized;

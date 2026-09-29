@@ -33,7 +33,7 @@ public class ValidatorExtensionsDictionaryTests
         var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people));
 
         var error = Assert.Single(exception.Errors);
-        Assert.Equal("[Coach].Name", error.Path);
+        Assert.Equal("people[Coach].Name", error.Path);
         Assert.Equal("Value is required.", error.Message);
     }
 
@@ -55,7 +55,7 @@ public class ValidatorExtensionsDictionaryTests
         var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people));
 
         var error = Assert.Single(exception.Errors);
-        Assert.Equal("", error.Path);
+        Assert.Equal("people", error.Path);
         Assert.Equal("Must not be null.", error.Message);
     }
 }

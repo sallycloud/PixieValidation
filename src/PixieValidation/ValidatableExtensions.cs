@@ -127,14 +127,17 @@ public static class ValidatableExtensions
     
     /// <summary>
     /// Validates each value in <paramref name="validatables"/> and returns the collected errors, if any.
+    /// Errors are prefixed with the argument expression and the entry's key (e.g. <c>people[Coach].Name</c>).
     /// </summary>
     public static ErrorCollector Validate<TKey, TValue>(
-        this IReadOnlyDictionary<TKey, TValue>? validatables, ErrorCollector? errors = null)
+        this IReadOnlyDictionary<TKey, TValue>? validatables,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where TValue : IValidatable
         where TKey : notnull
     {
         errors ??= new ErrorCollector();
-        errors.Nested(validatables, "");
+        errors.Nested(validatables, basePath!);
         return errors;
     }
 
@@ -144,12 +147,14 @@ public static class ValidatableExtensions
     /// </summary>
     /// <returns><paramref name="validatables"/>, if validation succeeds.</returns>
     public static IReadOnlyDictionary<TKey, TValue> ValidateOrThrow<TKey, TValue>(
-        this IReadOnlyDictionary<TKey, TValue>? validatables, ErrorCollector? errors = null)
+        this IReadOnlyDictionary<TKey, TValue>? validatables,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where TValue : IValidatable
         where TKey : notnull
     {
         errors ??= new ErrorCollector();
-        errors.Nested(validatables, "");
+        errors.Nested(validatables, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
         return validatables!;
@@ -157,20 +162,22 @@ public static class ValidatableExtensions
     
     /// <summary>
     /// Validates each item in <paramref name="validatables"/> and returns the collected errors, if any.
+    /// Errors are prefixed with the argument expression and the item's index (e.g. <c>people[1].Name</c>).
     /// </summary>
     public static ErrorCollector Validate<T>(
-        this IEnumerable<T>? validatables, 
-        ErrorCollector? errors = null)
+        this IEnumerable<T>? validatables,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where T : IValidatable
     {
         errors ??= new ErrorCollector();
         if (validatables is null)
         {
-            errors.Nested((IEnumerable<T>?)null, "");
+            errors.Nested((IEnumerable<T>?)null, basePath!);
             return errors;
         }
         var materialized = validatables.ToList();
-        errors.Nested(materialized, "");
+        errors.Nested(materialized, basePath!);
         return errors;
     }
 
@@ -178,20 +185,21 @@ public static class ValidatableExtensions
     /// Validates each item in <paramref name="validatables"/> and throws a <see cref="ValidationException"/>
     /// if any errors are found.
     /// </summary>
-    /// <returns><paramref name="validatables"/>, if validation succeeds.</returns>
+    /// <returns>The materialized items, if validation succeeds.</returns>
     public static IEnumerable<T> ValidateOrThrow<T>(
-        this IEnumerable<T>? validatables, 
-        ErrorCollector? errors = null)
+        this IEnumerable<T>? validatables,
+        ErrorCollector? errors = null,
+        [CallerArgumentExpression(nameof(validatables))] string? basePath = null)
         where T : IValidatable
     {
         errors ??= new ErrorCollector();
         if (validatables is null)
         {
-            errors.Nested((IEnumerable<T>?)null, "");
+            errors.Nested((IEnumerable<T>?)null, basePath!);
             throw new ValidationException(errors.ToList());
         }
         var materialized = validatables.ToList();
-        errors.Nested(materialized, "");
+        errors.Nested(materialized, basePath!);
         if (errors.Any())
             throw new ValidationException(errors.ToList());
         return materialized;

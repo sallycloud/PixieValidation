@@ -33,7 +33,7 @@ public class ValidatorExtensionsEnumerableTests
         var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people));
 
         var error = Assert.Single(exception.Errors);
-        Assert.Equal("[1].Name", error.Path);
+        Assert.Equal("people[1].Name", error.Path);   // vorher "[1].Name"
         Assert.Equal("Value is required.", error.Message);
     }
 
@@ -52,10 +52,10 @@ public class ValidatorExtensionsEnumerableTests
     {
         IEnumerable<Person>? people = null;
 
-        var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people!));
-
+        var exception = Assert.Throws<ValidationException>(() => Validator.ValidateOrThrow(people));
+        
         var error = Assert.Single(exception.Errors);
-        Assert.Equal("", error.Path);
+        Assert.Equal("people", error.Path);
         Assert.Equal("Must not be null.", error.Message);
     }
 }
