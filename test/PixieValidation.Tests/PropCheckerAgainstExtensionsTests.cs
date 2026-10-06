@@ -1,4 +1,4 @@
-﻿namespace PixieValidation.Tests;
+namespace PixieValidation.Tests;
 
 public class PropAgainstCheckerExtensionsTests
 {

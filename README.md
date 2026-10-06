@@ -41,6 +41,18 @@ Console.WriteLine($"{error.Path}: {error.Message}");
 
 Nested objects and collections (lists, sets, dictionaries) are validated automatically via `errors.Nested(...)` — see the `PropCheckers` namespace for the full set of built-in rule functions (strings, numbers, dates, GUIDs, enums, collections, and more).
 
+Groups of alternatives of which exactly one must be chosen (for example a database section that is either SQLite or MariaDB) can be validated with `errors.CheckExactlyOneIsSet(...)`. Call it from the group's own `ValidateAndCollect`, so the error is reported at the group's path. Pass the alternatives as nullable references; if they are of different types, name the common type explicitly. Alternatives that are not set must not be passed to `Nested`, because `Nested` reports `null` as an error:
+
+```csharp
+public void ValidateAndCollect(ErrorCollector errors)
+{
+    errors.CheckExactlyOneIsSet<IAlternative>(First, Second);
+
+    if (First is not null) errors.Nested(First);
+    if (Second is not null) errors.Nested(Second);
+}
+```
+
 If you need proof, carried in the type system, that a value has actually been validated, use `ToValidOrThrow()` instead of `ValidateOrThrow()` — it returns a `Valid<User>` rather than a plain `User`. See [`Valid<T>`](#validt) below for why that guarantee is narrower than it might look.
 
 # Valid<T>
@@ -80,10 +92,6 @@ $VERSION = (Select-String -Path Directory.Build.props -Pattern '(?<=<Version>)[^
 git tag "v$VERSION"
 git push origin "v$VERSION"
 ```
-
-$VERSION = (Select-String -Path Directory.Build.props -Pattern '(?<=<Version>)[^<]+').Matches[0].Value
-git tag "v$VERSION"
-git push origin "v$VERSION"
 
 Pushing the tag triggers `.github/workflows/publish.yml`, which builds, tests, packs, and
 publishes the package to nuget.org.

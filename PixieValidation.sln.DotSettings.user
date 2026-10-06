@@ -3,5 +3,8 @@
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::E2D071A9-FA32-FC44-A33D-90869EC19E57::net10.0::PixieValidation.Tests.ErrorCollectorNestedAgainstTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::E2D071A9-FA32-FC44-A33D-90869EC19E57::net10.0::PixieValidation.Tests.PropAgainstCheckerExtensionsTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::E2D071A9-FA32-FC44-A33D-90869EC19E57::net10.0::PixieValidation.Tests.ErrorCollectorTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::E2D071A9-FA32-FC44-A33D-90869EC19E57::net10.0::PixieValidation.Tests.ErrorCollectorPathTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::E2D071A9-FA32-FC44-A33D-90869EC19E57::net10.0::PixieValidation.Tests.ErrorCollectorCardinalityTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

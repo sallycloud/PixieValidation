@@ -1,4 +1,4 @@
-﻿namespace PixieValidation;
+namespace PixieValidation;
 
 /// <summary>
 /// Checks a single value against a rule that additionally depends on <typeparamref name="TAgainst"/>.

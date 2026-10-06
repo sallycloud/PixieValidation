@@ -1,4 +1,4 @@
-﻿namespace PixieValidation;
+namespace PixieValidation;
 
 public static class PropAgainstCheckerExtensions
 {
