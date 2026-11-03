@@ -3,7 +3,8 @@ namespace PixieValidation.PropCheckers;
 public static class UriCheckers
 {
     public static PropChecker<string> IsAbsoluteUri() =>
-        value => Uri.TryCreate(value, UriKind.Absolute, out _)
+        value => Uri.TryCreate(value, UriKind.Absolute, out var uri)
+                 && value.TrimStart().StartsWith(uri.Scheme + ":", StringComparison.OrdinalIgnoreCase)
             ? null
             : "Must be a valid absolute URI.";
     

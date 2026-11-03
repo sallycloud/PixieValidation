@@ -23,6 +23,7 @@ public class UriCheckersTests
     [InlineData("example.com")]
     [InlineData("not a uri")]
     [InlineData("")]
+    [InlineData("/callback")] 
     public void IsAbsoluteUri_WithoutScheme_ReturnsError(string value)
     {
         var checker = UriCheckers.IsAbsoluteUri();
