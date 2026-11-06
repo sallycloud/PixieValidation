@@ -68,4 +68,66 @@ public class CollectionsCheckersTests
 
         Assert.Equal("Must not be null.", error);
     }
+    
+    // NotEmpty
+
+    [Fact]
+    public void NotEmpty_WithEmptyCollection_ReturnsError()
+    {
+        var checker = CollectionCheckers.NotEmpty<int>();
+
+        Assert.Equal("Must not be empty.", checker(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void NotEmpty_WithOneItem_ReturnsNoError()
+    {
+        var checker = CollectionCheckers.NotEmpty<int>();
+
+        Assert.Null(checker(new[] { 1 }));
+    }
+
+    // MinCount
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void MinCount_WithAtLeastMinimumItems_ReturnsNoError(int count)
+    {
+        var checker = CollectionCheckers.MinCount<int>(2);
+
+        Assert.Null(checker(Enumerable.Range(0, count).ToArray()));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void MinCount_WithTooFewItems_ReturnsError(int count)
+    {
+        var checker = CollectionCheckers.MinCount<int>(2);
+
+        Assert.Equal("Must contain at least 2 items.", checker(Enumerable.Range(0, count).ToArray()));
+    }
+
+    // MaxCount
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    public void MaxCount_WithAtMostMaximumItems_ReturnsNoError(int count)
+    {
+        var checker = CollectionCheckers.MaxCount<int>(2);
+
+        Assert.Null(checker(Enumerable.Range(0, count).ToArray()));
+    }
+
+    [Theory]
+    [InlineData(3)]
+    [InlineData(10)]
+    public void MaxCount_WithTooManyItems_ReturnsError(int count)
+    {
+        var checker = CollectionCheckers.MaxCount<int>(2);
+
+        Assert.Equal("Must not contain more than 2 items.", checker(Enumerable.Range(0, count).ToArray()));
+    }
 }

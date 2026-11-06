@@ -2,114 +2,112 @@ using PixieValidation.Tests.Domain;
 
 namespace PixieValidation.Tests;
 
-public class ValidatableAgainstExtensionsEnumerableTests
+public class ValidatableExtensionsEnumerableTests
 {
+    // Validate
+
     [Fact]
-    public void ValidateOrThrowAgainst_WithAllItemsWithinCapacity_ReturnsItems()
+    public void Validate_WithAllValidPersons_ReturnsNoErrors()
     {
-        IEnumerable<Item> items = new[]
+        IEnumerable<Person> people = new[]
         {
-            new Item { Size = 3 },
-            new Item { Size = 5 }
+            new Person { Name = "Alice", Age = 30 },
+            new Person { Name = "Bob", Age = 25 }
         };
 
-        var result = items.ValidateOrThrowAgainst(5);
+        var errors = people.Validate();
 
-        Assert.Equal(items, result);
+        Assert.Empty(errors);
     }
 
     [Fact]
-    public void ValidateOrThrowAgainst_WithOneItemAboveCapacity_ThrowsWithIndexedPath()
+    public void Validate_WithOneInvalidPerson_ReturnsIndexedErrorWithoutThrowing()
     {
-        IEnumerable<Item> items = new[]
+        IEnumerable<Person> people = new[]
         {
-            new Item { Size = 3 },
-            new Item { Size = 6 }
+            new Person { Name = "Alice", Age = 30 },
+            new Person { Name = "", Age = 25 }
         };
 
-        var exception = Assert.Throws<ValidationException>(() => items.ValidateOrThrowAgainst(5));
+        var errors = people.Validate();
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people[1].Name", error.Path);
+        Assert.Equal("Value is required.", error.Message);
+    }
+
+    [Fact]
+    public void Validate_WithNullEnumerable_ReturnsNullError()
+    {
+        IEnumerable<Person>? people = null;
+
+        var errors = people.Validate();
+
+        var error = Assert.Single(errors);
+        Assert.Equal("people", error.Path);
+        Assert.Equal("Must not be null.", error.Message);
+    }
+
+    // ValidateOrThrow
+
+    [Fact]
+    public void ValidateOrThrow_WithAllValidPersons_ReturnsAllPersons()
+    {
+        IEnumerable<Person> people = new[]
+        {
+            new Person { Name = "Alice", Age = 30 },
+            new Person { Name = "Bob", Age = 25 }
+        };
+
+        var result = people.ValidateOrThrow();
+
+        Assert.Equal(people, result);
+    }
+
+    [Fact]
+    public void ValidateOrThrow_WithOneInvalidPerson_ThrowsWithIndexedPath()
+    {
+        IEnumerable<Person> people = new[]
+        {
+            new Person { Name = "Alice", Age = 30 },
+            new Person { Name = "", Age = 25 }
+        };
+
+        var exception = Assert.Throws<ValidationException>(() => people.ValidateOrThrow());
 
         var error = Assert.Single(exception.Errors);
-        Assert.Equal("items[1].Size", error.Path);
-        Assert.Equal("Must not exceed 5.", error.Message);
+        Assert.Equal("people[1].Name", error.Path);
+        Assert.Equal("Value is required.", error.Message);
     }
 
     [Fact]
-    public void ValidateOrThrowAgainst_WithMultipleItemsAboveCapacity_ThrowsWithAllIndexedPaths()
+    public void ValidateOrThrow_WithNullEnumerable_ThrowsWithNullError()
     {
-        IEnumerable<Item> items = new[]
-        {
-            new Item { Size = 7 },
-            new Item { Size = 2 },
-            new Item { Size = 9 }
-        };
+        IEnumerable<Person>? people = null;
 
-        var exception = Assert.Throws<ValidationException>(() => items.ValidateOrThrowAgainst(5));
-
-        Assert.Equal(2, exception.Errors.Count);
-        Assert.Contains(exception.Errors, e => e.Path == "items[0].Size" && e.Message == "Must not exceed 5.");
-        Assert.Contains(exception.Errors, e => e.Path == "items[2].Size" && e.Message == "Must not exceed 5.");
-    }
-
-    [Fact]
-    public void ValidateOrThrowAgainst_WithEmptyEnumerable_ReturnsEmpty()
-    {
-        IEnumerable<Item> items = Array.Empty<Item>();
-
-        var result = items.ValidateOrThrowAgainst(5);
-
-        Assert.Empty(result);
-    }
-
-    [Fact]
-    public void ValidateOrThrowAgainst_WithNullEnumerable_ThrowsWithNullError()
-    {
-        IEnumerable<Item>? items = null;
-
-        var exception = Assert.Throws<ValidationException>(() => items.ValidateOrThrowAgainst(5));
+        var exception = Assert.Throws<ValidationException>(() => people.ValidateOrThrow());
 
         var error = Assert.Single(exception.Errors);
-        Assert.Equal("items", error.Path);
+        Assert.Equal("people", error.Path);
         Assert.Equal("Must not be null.", error.Message);
     }
 
     [Fact]
-    public void ValidateOrThrowAgainst_WithSetOfItems_ThrowsWithIndexedPath()
+    public void ValidateOrThrow_WithLazySequence_EnumeratesItOnlyOnce()
     {
-        IReadOnlySet<Item> items = new HashSet<Item>
-        {
-            new() { Size = 3 },
-            new() { Size = 6 }
-        };
+        var enumerations = 0;
+        IEnumerable<Person> people = Generate(() => enumerations++);
 
-        var exception = Assert.Throws<ValidationException>(() => items.ValidateOrThrowAgainst(5));
+        var result = people.ValidateOrThrow();
 
-        var error = Assert.Single(exception.Errors);
-        Assert.StartsWith("items[", error.Path);
-        Assert.EndsWith("].Size", error.Path);
+        Assert.Equal(1, enumerations);
+        Assert.Equal(2, result.Count());
     }
 
-    [Fact]
-    public void ValidateAgainst_WithItemAboveCapacity_ReturnsErrorWithoutThrowing()
+    private static IEnumerable<Person> Generate(Action onEnumerate)
     {
-        IEnumerable<Item> items = new[] { new Item { Size = 6 } };
-
-        var errors = items.ValidateAgainst(5);
-
-        var error = Assert.Single(errors);
-        Assert.Equal("items[0].Size", error.Path);
-        Assert.Equal("Must not exceed 5.", error.Message);
-    }
-
-    [Fact]
-    public void ValidateAgainst_WithNullEnumerable_ReturnsNullError()
-    {
-        IEnumerable<Item>? items = null;
-
-        var errors = items.ValidateAgainst(5);
-
-        var error = Assert.Single(errors);
-        Assert.Equal("items", error.Path);
-        Assert.Equal("Must not be null.", error.Message);
+        onEnumerate();
+        yield return new Person { Name = "Alice", Age = 30 };
+        yield return new Person { Name = "Bob", Age = 25 };
     }
 }

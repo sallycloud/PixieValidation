@@ -61,4 +61,50 @@ public class ValidatableAgainstExtensionsTests
         Assert.Equal(2, result.Count());
         Assert.Contains(result, e => e.Path == "Size");
     }
+    
+    [Fact]
+    public void Validate_WithValidPerson_ReturnsNoErrors()
+    {
+        var person = new Person { Name = "Alice", Age = 30 };
+
+        var errors = person.Validate();
+
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public void Validate_WithInvalidPerson_ReturnsAllErrorsWithoutThrowing()
+    {
+        var person = new Person { Name = "", Age = 200 };
+
+        var errors = person.Validate();
+
+        Assert.Equal(2, errors.Count());
+        Assert.Contains(errors, e => e.Path == "Name" && e.Message == "Value is required.");
+        Assert.Contains(errors, e => e.Path == "Age" && e.Message == "Must be between 0 and 150.");
+    }
+
+    [Fact]
+    public void Validate_WithGivenCollector_AddsToItAndReturnsIt()
+    {
+        var collector = new ErrorCollector();
+        var person = new Person { Name = "", Age = 30 };
+
+        var result = person.Validate(collector);
+
+        Assert.Same(collector, result);
+        Assert.Equal("Name", Assert.Single(result).Path);
+    }
+
+    [Fact]
+    public void ToValidOrThrow_WithInvalidPerson_Throws()
+    {
+        var person = new Person { Name = "", Age = 30 };
+
+        var exception = Assert.Throws<ValidationException>(() => person.ToValidOrThrow());
+
+        var error = Assert.Single(exception.Errors);
+        Assert.Equal("Name", error.Path);
+        Assert.Equal("Value is required.", error.Message);
+    }
 }
