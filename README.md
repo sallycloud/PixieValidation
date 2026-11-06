@@ -66,6 +66,32 @@ An external `IValidator<T>` or a `PropChecker<T>` can validate a value (`Validat
 a `Valid<T>` by supplying a lax or empty `IValidator<T>` — the guarantee would then say
 nothing meaningful about which rules were actually applied.
 
+# Tests and coverage
+
+Restore the tools once (needs the .NET SDK):
+
+```bash
+dotnet tool restore
+```
+
+Run all tests:
+
+```bash
+dotnet test
+```
+
+Run the tests with coverage and print a summary per class:
+
+```bash
+./scripts/run-coverage.sh
+```
+
+```powershell
+./scripts/run-coverage.ps1
+```
+
+The HTML report is written to `coverage/report/index.html`. The `coverage/` folder is ignored by Git.
+
 # Build
 
 ```bash
