@@ -113,8 +113,14 @@ no API key involved). To publish a new version:
 2. Commit and push the change.
 3. Tag the commit with a `v`-prefixed version and push the tag:
 
+```bash
+VERSION=$(dotnet msbuild src/PixieValidation/PixieValidation.csproj -getProperty:Version)
+git tag "v$VERSION"
+git push origin "v$VERSION"
+```
+
 ```powershell
-$VERSION = (Select-String -Path Directory.Build.props -Pattern '(?<=<Version>)[^<]+').Matches[0].Value
+$VERSION = dotnet msbuild src/PixieValidation/PixieValidation.csproj -getProperty:Version
 git tag "v$VERSION"
 git push origin "v$VERSION"
 ```
