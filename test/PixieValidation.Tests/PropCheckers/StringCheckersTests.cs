@@ -149,7 +149,7 @@ public class StringCheckersTests
     [Fact]
     public void Matches_WithMatchingValue_ReturnsNoError()
     {
-        var checker = StringCheckers.Matches(new Regex(@"^[a-z]+$"));
+        var checker = StringCheckers.Matches(new Regex(@"\A[a-z]+\z"));
 
         var error = checker("alice");
 
@@ -159,7 +159,7 @@ public class StringCheckersTests
     [Fact]
     public void Matches_WithNonMatchingValue_ReturnsDefaultMessage()
     {
-        var checker = StringCheckers.Matches(new Regex(@"^[a-z]+$"));
+        var checker = StringCheckers.Matches(new Regex(@"\A[a-z]+\z"));
 
         var error = checker("Alice1");
 
@@ -169,8 +169,8 @@ public class StringCheckersTests
     [Fact]
     public void Matches_WithCustomMessage_ReturnsCustomMessage()
     {
-        var checker = StringCheckers.Matches(new Regex(@"^[a-z]+$"), "Only lowercase letters allowed.");
-
+        var checker = StringCheckers.Matches(new Regex(@"\A[a-z]+\z"), "Only lowercase letters allowed.");
+        
         var error = checker("Alice1");
 
         Assert.Equal("Only lowercase letters allowed.", error);
